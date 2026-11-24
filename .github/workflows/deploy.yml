@@ -1,0 +1,77 @@
+name: Build and deploy website
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: website-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and deploy
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out website
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.23.4'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify deployment and recovery
+        run: bash scripts/test-deploy-website.sh
+
+      - name: Build website
+        run: |
+          pnpm build
+          test -s dist/index.html
+          tar -czf "$RUNNER_TEMP/website.tar.gz" -C dist .
+
+      - name: Deploy website over SSH
+        env:
+          VPS_HOST: ${{ vars.VPS_HOST }}
+          VPS_PORT: ${{ vars.VPS_PORT }}
+          VPS_USER: ${{ vars.VPS_USER }}
+          VPS_KNOWN_HOSTS: ${{ vars.VPS_KNOWN_HOSTS }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          for name in VPS_HOST VPS_PORT VPS_USER VPS_KNOWN_HOSTS VPS_SSH_KEY; do
+            if [[ -z ${!name} ]]; then
+              printf '::error::Missing Actions setting: %s\n' "$name"
+              exit 1
+            fi
+          done
+          [[ $VPS_HOST =~ ^[A-Za-z0-9][A-Za-z0-9.-]*$ ]]
+          [[ $VPS_PORT =~ ^[0-9]{1,5}$ ]]
+          ((10#$VPS_PORT > 0 && 10#$VPS_PORT <= 65535))
+          [[ $VPS_USER =~ ^[a-z_][a-z0-9_-]*$ ]]
+          [[ $GITHUB_SHA =~ ^[0-9a-f]{40}$ ]]
+          ssh_dir=$(mktemp -d "$RUNNER_TEMP/website-ssh.XXXXXX")
+          trap 'rm -rf -- "$ssh_dir"' EXIT
+          printf '%s\n' "$VPS_SSH_KEY" > "$ssh_dir/key"
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > "$ssh_dir/known_hosts"
+          ssh -F /dev/null -i "$ssh_dir/key" \
+            -o IdentitiesOnly=yes -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$ssh_dir/known_hosts" \
+            -o ConnectTimeout=15 -o ServerAliveInterval=15 -o ServerAliveCountMax=4 \
+            -p "$VPS_PORT" "$VPS_USER@$VPS_HOST" "deploy-website $GITHUB_SHA" \
+            < "$RUNNER_TEMP/website.tar.gz"

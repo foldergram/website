@@ -1,0 +1,29 @@
+---
+import '../styles/global.css';
+---
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Foldergram - The feed you know. The photos you own.</title>
+    <meta name="description" content="The familiar feeling of a social feed, filled with your own memories. Browse your photo and video folders as a personal feed, Reels, Stories and Explore. Self-hosted and open source." />
+    <meta property="og:title" content="Foldergram - The feed you know. The photos you own." />
+    <meta property="og:description" content="Feels familiar. Feels like yours. Rediscover your photos and videos in an Instagram-inspired personal feed. Self-hosted, with your originals kept in place." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://foldergram.app/" />
+    <meta property="og:site_name" content="Foldergram" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="theme-color" content="#0a0b10" />
+    <link rel="canonical" href="https://foldergram.app/" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <noscript><style is:global>.rv{opacity:1;transform:none}</style></noscript>
+  </head>
+  <body id="top">
+    <slot />
+    <script is:inline src="/interactive-demo.js"></script>
+  </body>
+</html>
