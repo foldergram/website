@@ -637,7 +637,7 @@ document.addEventListener('keydown',e=>{
 });
 
 /* ============================================================
-   site-wide: reveals, terminals, install typing, copy, stars, menu
+   site-wide: reveals, terminals, stars, menu
 ============================================================ */
 const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){en.target.classList.add('on');io.unobserve(en.target)}}),{threshold:.12,rootMargin:'0px 0px -6% 0px'});
 $$('.rv').forEach(el=>io.observe(el));
@@ -645,21 +645,9 @@ const tio=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){en.
 $$('.term').forEach(el=>tio.observe(el));
 $$('.feat-head').forEach(btn=>btn.addEventListener('click',()=>{
   const item=btn.closest('.feat'),wasOpen=item.classList.contains('open');
-  $$('.feat.open').forEach(f=>{f.classList.remove('open');$('.feat-head',f).setAttribute('aria-expanded','false')});
-  if(!wasOpen){item.classList.add('open');btn.setAttribute('aria-expanded','true')}
+  $$('.feat.open').forEach(f=>{f.classList.remove('open');$('.feat-head',f).setAttribute('aria-expanded','false');$('.feat-body',f).setAttribute('aria-hidden','true')});
+  if(!wasOpen){item.classList.add('open');btn.setAttribute('aria-expanded','true');$('.feat-body',item).setAttribute('aria-hidden','false')}
 }));
-(function(){
-  const el=$('#instCmd');
-  const CMD=el.dataset.command||'';
-  const code=el.closest('code');
-  if(reduceMotion){el.textContent=CMD;return}
-  let i=0;
-  setTimeout(function tick(){
-    el.textContent=CMD.slice(0,++i);
-    code.scrollLeft=code.scrollWidth;
-    if(i<CMD.length)setTimeout(tick,20+Math.random()*24);
-  },600);
-})();
 const toastEl=$('#toast');let toastT=null;
 function showDemoNotice(){
   toastEl.innerHTML='<span>This is a limited interactive preview. <a href="https://demo.foldergram.app/" target="_blank" rel="noopener" style="color:var(--acc);text-decoration:underline">Open the full demo</a> to try menus and more features.</span>';
@@ -671,13 +659,6 @@ function showToast(msg){
   toastEl.classList.add('show');clearTimeout(toastT);
   toastT=setTimeout(()=>toastEl.classList.remove('show'),2600);
 }
-$$('.copy').forEach(b=>b.addEventListener('click',()=>{
-  const txt=b.dataset.copy||'';
-  const done=()=>showToast('Copied to clipboard');
-  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(done).catch(()=>fb(txt,done));
-  else fb(txt,done);
-  function fb(t,cb){const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');cb()}catch(e){}ta.remove()}
-}));
 (async()=>{
   const key='foldergram-github-stars',ttl=60*60*1000;
   const show=n=>{

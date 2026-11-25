@@ -34,10 +34,10 @@ for (const [width, height] of sizes) {
         boxes.push(metrics);
       }
       expect(boxes[1].theme).toBe(theme);
-      // Hero installation text and philosophy quote intentionally changed. Their
+      // Hero copy, How it works, and philosophy quote intentionally changed. Their
       // vertical positions must not make unrelated sections fail parity checks.
       // Keep size and horizontal placement checks for all other regions.
-      const comparable = (boxes) => boxes.map((b,i) => b && ([5,6,8].includes(i) ? [b[0],b[2]] : [b[0],b[2],b[3]]));
+      const comparable = (boxes) => boxes.map((b,i) => b && ([1,2,4,5,6,8].includes(i) ? [b[0],b[2]] : [b[0],b[2],b[3]]));
       // Footer content intentionally differs from the original: measure its
       // placement without asserting an outdated fixed height.
       expect(boxes[1].boxes[8]).not.toBeNull();

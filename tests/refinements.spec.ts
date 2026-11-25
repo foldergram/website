@@ -2,7 +2,6 @@ import { test, expect } from '@playwright/test';
 
 const site = 'http://127.0.0.1:4333/';
 const github = 'https://api.github.com/repos/foldergram/foldergram';
-const command = 'docker run -dp 4141:4141 -v ~/photos:/app/data/gallery:ro -v fg-data:/app/data ghcr.io/foldergram/foldergram';
 
 test.beforeEach(async ({page}) => {
   await page.route(/^https?:\/\/(?!127\.0\.0\.1)/, route => route.abort());
@@ -22,21 +21,97 @@ test('navigation is centered in the space between the brand and theme control', 
   expect(Math.abs(geometry.navCenter-(geometry.brandRight+geometry.themeLeft)/2)).toBeLessThan(2);
 });
 
-test('GHCR command types, copies accurately, and leaves the copy button visible on mobile', async ({page}) => {
-  await page.emulateMedia({reducedMotion:'reduce'});
+test('hero headline wraps naturally into balanced lines without overflow', async ({page}) => {
+  for (const width of [1920,1440,1280,1100,900,768,561,560,412,390,375,320]) {
+    await page.setViewportSize({width,height:900});
+    await page.goto(site,{waitUntil:'domcontentloaded'});
+    const layout = await page.locator('.hero h1').evaluate(el => {
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      const lines: {top:number,left:number,right:number}[] = [];
+      while (walker.nextNode()) {
+        const range = document.createRange();
+        range.selectNodeContents(walker.currentNode);
+        for (const rect of Array.from(range.getClientRects())) {
+          if (!rect.width) continue;
+          const line = lines.find(l => Math.abs(l.top-rect.top)<2);
+          if (line) { line.left=Math.min(line.left,rect.left); line.right=Math.max(line.right,rect.right); }
+          else lines.push({top:rect.top,left:rect.left,right:rect.right});
+        }
+      }
+      return {lines, inline:getComputedStyle(el.querySelector('em')!).display, overflow:document.documentElement.scrollWidth > window.innerWidth};
+    });
+    expect(layout.inline).toBe('inline');
+    if (width >= 768) {
+      expect(layout.lines.length, `width ${width}`).toBe(3);
+      const lengths=layout.lines.map(line=>line.right-line.left);
+      expect(Math.min(...lengths)/Math.max(...lengths), `width ${width}`).toBeGreaterThan(0.65);
+    } else {
+      expect(layout.lines.length).toBeGreaterThanOrEqual(2);
+      expect(layout.lines.length).toBeLessThanOrEqual(5);
+    }
+    expect(layout.overflow).toBe(false);
+    for (const line of layout.lines) {
+      expect(line.left).toBeGreaterThanOrEqual(0);
+      expect(line.right).toBeLessThanOrEqual(width);
+    }
+  }
+});
+
+test('hero fills the first viewport and leaves breathing room for the fading glow', async ({page}) => {
+  for (const [width,height] of [[1920,1080],[1440,900],[1280,720],[1024,600],[900,1200],[768,1024],[390,844],[320,720]]) {
+    await page.setViewportSize({width,height});
+    await page.goto(site,{waitUntil:'domcontentloaded'});
+    for (const theme of ['dark','light']) {
+      if (theme === 'light') await page.locator('#themeBtn').click();
+      const geometry = await page.evaluate(() => {
+        const hero = document.querySelector('.hero')!.getBoundingClientRect();
+        const link = document.querySelector('#ctaDemo')!.getBoundingClientRect();
+        const demo = document.querySelector('#demo')!.getBoundingClientRect();
+        const glow = document.querySelector('.hero .glow')!;
+        return {heroBottom:hero.bottom,demoTop:demo.top,bottomSpace:hero.bottom-link.bottom,background:getComputedStyle(glow).backgroundImage,overflow:document.documentElement.scrollWidth > innerWidth};
+      });
+      expect(geometry.heroBottom, `${width}x${height} ${theme}`).toBeGreaterThanOrEqual(height-1);
+      expect(geometry.demoTop).toBeGreaterThanOrEqual(height);
+      expect(geometry.bottomSpace).toBeGreaterThanOrEqual(63);
+      expect(geometry.background).toContain('radial-gradient');
+      expect(geometry.background).toContain('rgba(0, 0, 0, 0)');
+      expect(geometry.overflow).toBe(false);
+    }
+    await page.locator('#themeBtn').click();
+  }
+});
+
+test('navigation prioritizes installation and keeps live demo reachable on mobile', async ({page}) => {
+  await page.route(github, route => route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({stargazers_count:624})}));
+  for (const width of [1440,1100,1081,1080,900,741,740,560,390,380,320]) {
+    await page.setViewportSize({width,height:900});
+    await page.goto(site,{waitUntil:'domcontentloaded'});
+    const nav = page.locator('.nav');
+    const start = nav.locator('.nav-start');
+    await expect(start).toHaveText('Get Started');
+    await expect(start).toHaveAttribute('href','https://docs.foldergram.app/installation');
+    if (width > 1080) {
+      await expect(nav.locator('.nav-links').getByRole('link',{name:'Live Demo'})).toBeVisible();
+      await expect(start).toBeVisible();
+    } else {
+      await nav.locator('#mbtn').click();
+      await expect(nav.locator('#mnav').getByRole('link',{name:'Live Demo'})).toHaveAttribute('href','https://demo.foldergram.app/');
+      await expect(nav.locator('#mnav').getByRole('link',{name:'Get Started'})).toBeVisible();
+    }
+    const overflow = await nav.locator('.nav-in').evaluate(el => el.scrollWidth > el.clientWidth);
+    expect(overflow, `width ${width}`).toBe(false);
+  }
+});
+
+test('hero actions remain visible and fit on narrow mobile screens without an install snippet', async ({page}) => {
   await page.setViewportSize({width:320,height:720});
   await page.goto(site, {waitUntil:'domcontentloaded'});
-  await expect(page.locator('#instCmd')).toHaveText(command);
-  await expect(page.locator('.copy')).toHaveAttribute('data-copy',command);
-  await expect(page.locator('.copy')).toBeVisible();
-  const layout=await page.evaluate(() => {
-    const install=document.querySelector('.install')!.getBoundingClientRect();
-    const copy=document.querySelector('.install .copy')!.getBoundingClientRect();
-    return {copyWithin:copy.right<=install.right+1, width:document.documentElement.scrollWidth, codeScrollable:document.querySelector('.install code')!.scrollWidth>document.querySelector('.install code')!.clientWidth};
-  });
-  expect(layout.copyWithin).toBe(true);
-  expect(layout.width).toBeLessThanOrEqual(320);
-  expect(layout.codeScrollable).toBe(true);
+  const hero = page.locator('.hero');
+  await expect(hero.getByRole('link',{name:'Get Started'})).toBeVisible();
+  await expect(hero.getByRole('link',{name:'Live Demo'})).toBeVisible();
+  await expect(hero.locator('#ctaDemo')).toBeVisible();
+  await expect(hero.locator('.install, [data-copy], .hero-install-note')).toHaveCount(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
 });
 
 test('GitHub stars come from live API and a reload uses short-term cache', async ({page}) => {

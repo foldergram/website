@@ -1,0 +1,75 @@
+---
+const questions = [
+  {
+    question: 'What is Foldergram?',
+    answer: 'Foldergram is a free, open-source, self-hosted photo and video gallery that turns your existing media folders into an Instagram-inspired feed, with Reels, Stories, folder profiles and more. It is a way to rediscover your own media, not a social network.',
+  },
+  {
+    question: 'Is Foldergram completely free?',
+    answer: 'Yes. Foldergram is released under the AGPL-3.0 license, with no subscription or paid feature tiers. You provide the hardware or hosting for your own installation.',
+  },
+  {
+    question: 'How do I install Foldergram?',
+    answer: 'Docker Compose is the recommended installation method. Download the provided Compose file, configure your gallery path, start the container and open Foldergram on its default port, 4141. Docker images are available for AMD64 and ARM64. You can also install from source.',
+    link: { href: 'https://docs.foldergram.app/installation', label: 'Read the installation guide' },
+  },
+  {
+    question: 'Do I need to import or move my existing photos and videos?',
+    answer: 'No. Foldergram indexes accessible media in its existing locations and stores its database, thumbnails, previews and streaming cache separately. For local galleries, place media inside subfolders of a configured gallery root; loose files directly in the root are not indexed.',
+    link: { href: 'https://docs.foldergram.app/local-galleries', label: 'Learn how local galleries work' },
+  },
+  {
+    question: 'Can I use Foldergram with a NAS or multiple drives?',
+    answer: 'Yes. You can add multiple local gallery locations and browse them together in one feed. NAS shares and external drives must be mounted and readable by the server running Foldergram. For Docker installations, make the locations available inside the container before adding them in Settings → Sources.',
+    link: { href: 'https://docs.foldergram.app/local-galleries', label: 'Set up multiple local galleries' },
+  },
+  {
+    question: 'Does Foldergram replace Immich?',
+    answer: 'Foldergram focuses on browsing and rediscovering your media rather than phone backup and photo management. You can use it without Immich, or connect your existing Immich folders and albums through an optional read-only integration. Foldergram does not modify media in Immich.',
+    link: { href: 'https://docs.foldergram.app/immich', label: 'Learn about Immich integration' },
+  },
+  {
+    question: 'Does Foldergram need an internet connection or cloud account?',
+    answer: 'Local gallery browsing does not require a cloud account or remote media service. Internet access may be needed to download the container image, updates or optional datasets. If you connect Immich, Foldergram must be able to reach your Immich server.',
+  },
+  {
+    question: 'Which photo and video formats are supported?',
+    answer: 'Foldergram supports JPEG, PNG, WebP, GIF and AVIF images, plus MP4, MOV, M4V, WebM and MKV videos. Experimental support for local still HEIC and HEIF images can be enabled in Settings. New local videos stream by default, using direct playback where possible or on-demand conversion when needed.',
+    link: { href: 'https://docs.foldergram.app/media-processing', label: 'Read about media processing' },
+  },
+  {
+    question: 'Can I share my gallery with family or friends?',
+    answer: 'Yes. Foldergram offers optional admin and viewer passwords, public browsing and scoped folder shares. It does not provide separate accounts for every family member. Enable appropriate access protection before sharing your installation, and follow the security guidance before making it accessible outside your local network.',
+    link: { href: 'https://docs.foldergram.app/security', label: 'Read the security guide' },
+  },
+  {
+    question: 'Is there a mobile app?',
+    answer: 'Foldergram works in desktop and mobile web browsers and can be installed as a web app on supported devices. Open your own Foldergram server in your browser to access your library.',
+  },
+];
+---
+<!-- ================= FAQ ================= -->
+<section class="sec" id="faq" aria-labelledby="faq-heading">
+  <div class="wrap">
+    <header class="sec-head">
+      <div class="sh-top"><span class="sec-no">(06)</span><span>FAQ</span><span class="sh-rule"></span></div>
+      <h2 id="faq-heading">Frequently asked <em class="grad">questions.</em></h2>
+      <p class="sec-sub">Everything you need to know before getting started with your own Foldergram gallery.</p>
+    </header>
+    <div class="faq-list">
+      {questions.map(item => (
+        <details class="faq-item">
+          <summary class="faq-question">
+            <span>{item.question}</span>
+            <span class="faq-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
+          </summary>
+          <div class="faq-answer">
+            <p>{item.answer}</p>
+            {item.link && <a href={item.link.href} target="_blank" rel="noopener">{item.link.label} <span aria-hidden="true">↗</span></a>}
+          </div>
+        </details>
+      ))}
+      <p class="faq-more">Still have a question? <a href="https://docs.foldergram.app/" target="_blank" rel="noopener">Explore the documentation</a> or <a href="https://github.com/foldergram/foldergram/issues" target="_blank" rel="noopener">visit GitHub</a>.</p>
+    </div>
+  </div>
+</section>

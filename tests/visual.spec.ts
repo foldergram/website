@@ -11,7 +11,8 @@ const viewports = [[1440,900],[900,1200],[390,844]] as const;
 // their sub-pixel raster origin in the document.
 // Features headline and documentation label have intentionally changed. Keep
 // pixel parity limited to unchanged sections.
-const regions = ['#app', '#how'] as const;
+// How it works now describes installation and media sources rather than the original mock.
+const regions = ['#app'] as const;
 const normalizeCss = `
 *,*::before,*::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 /* Prevent sticky-header overlays from differing when preceding section heights change. */

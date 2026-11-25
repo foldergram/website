@@ -1,27 +1,20 @@
 ---
-const installCommand = 'docker run -dp 4141:4141 -v ~/photos:/app/data/gallery:ro -v fg-data:/app/data ghcr.io/foldergram/foldergram';
+const installationUrl = 'https://docs.foldergram.app/installation';
 ---
 <section class="hero">
   <div class="glow" aria-hidden="true"></div>
-  <p class="eyebrow rv">open source <i style="font-style:normal;color:var(--acc)">/</i> self-hosted <i style="font-style:normal;color:var(--acc)">/</i> <b>AGPL-3.0</b></p>
-  <h1 class="rv" style="--d:.06s">The feed you know. <em class="grad">The photos you own.</em></h1>
-  <p class="sub rv" style="--d:.12s">That familiar feeling of scrolling a social feed, except <strong>every photo and video is yours.</strong> Foldergram turns your existing library into a personal <strong>feed, Reels, Stories and Explore</strong>. Rediscover moments you forgot you saved, without moving your local originals.</p>
-  <div class="cta-row rv" style="--d:.2s">
-    <a class="btn primary js-demo" href="#demo" id="ctaDemo">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5.5"/><rect x="7.4" y="7.4" width="4.1" height="4.1" rx="1.3" fill="currentColor" stroke="none"/><rect x="12.5" y="7.4" width="4.1" height="4.1" rx="1.3" fill="currentColor" stroke="none"/><rect x="7.4" y="12.5" width="4.1" height="4.1" rx="1.3" fill="currentColor" stroke="none"/><rect x="12.5" y="12.5" width="4.1" height="4.1" rx="1.3" fill="currentColor" stroke="none"/></svg>
-      <span class="cta-desktop">Explore the interactive preview</span><span class="cta-mobile">Explore preview</span>
+  <p class="eyebrow">free &amp; open source <i style="font-style:normal;color:var(--acc)">/</i> self-hosted <i style="font-style:normal;color:var(--acc)">/</i> <b>AGPL-3.0</b></p>
+  <h1>Your photos. Your videos. <em class="grad">Your own social feed.</em></h1>
+  <p class="sub">Foldergram is a free, open-source, <strong>self-hosted photo and video gallery</strong> with an Instagram-inspired experience. Turn your existing folders into a personal feed, Reels, Stories and more, without moving your original files.</p>
+  <div class="cta-row">
+    <a class="btn primary" href={installationUrl} target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></svg>
+      Get Started
     </a>
-    <a class="btn ghost" href="https://github.com/foldergram/foldergram" target="_blank" rel="noopener">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9L12 3Z"/></svg>
-      <span class="cta-desktop">Star on GitHub</span><span class="cta-mobile">GitHub</span>
+    <a class="btn ghost" href="https://demo.foldergram.app/" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m10 8 6 4-6 4Z"/></svg>
+      Live Demo
     </a>
   </div>
-  <div class="install rv" style="--d:.26s">
-    <span class="pr">~ $</span>
-    <code><span id="instCmd" data-command={installCommand}></span><span class="icaret" aria-hidden="true"></span></code>
-    <button class="copy" data-copy={installCommand} aria-label="Copy Docker run command">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
-    </button>
-  </div>
-  <p class="demo-cap rv hero-install-note" style="margin-top:12px">Docker run example for <code>~/photos</code>. Replace the path with your gallery directory. <a href="https://docs.foldergram.app/installation" target="_blank" rel="noopener">See the recommended Compose setup.</a></p>
+  <p class="demo-cap hero-preview-link"><a class="js-demo" href="#demo" id="ctaDemo">Explore the interactive preview ↓</a></p>
 </section>

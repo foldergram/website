@@ -73,17 +73,17 @@ test('reels load video, seek, mute, navigate and release old video', async ({pag
   await expect(page.locator('#rcVideo')).toHaveCount(0);
 });
 
-test('mobile menu and copy button', async ({page}) => {
+test('mobile menu and hero preview link', async ({page}) => {
   await page.emulateMedia({reducedMotion:'reduce'});
-  await page.context().grantPermissions(['clipboard-read','clipboard-write']);
   await page.setViewportSize({width:390,height:844});
   await page.locator('#mbtn').click();
   await expect(page.locator('#mnav')).toHaveClass(/open/);
   await page.locator('#mnav a[href="#features"]').click();
   await expect(page.locator('#mnav')).not.toHaveClass(/open/);
   await page.evaluate(() => window.scrollTo({top:0,behavior:'instant'}));
-  await page.locator('[data-copy]').click();
-  await expect(page.locator('#toast')).toContainText('Copied to clipboard');
+  await page.locator('#ctaDemo').click();
+  await expect(page).toHaveURL(/#demo$/);
+  await expect(page.locator('#apMain')).not.toBeEmpty();
 });
 
 test('unsupported feature notice links to the full demo', async ({page}) => {

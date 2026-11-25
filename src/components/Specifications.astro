@@ -3,27 +3,36 @@
   <div class="wrap">
     <header class="sec-head rv">
       <div class="sh-top"><span class="sec-no">(04)</span><span>SPECIFICATIONS</span><span class="sh-rule"></span></div>
-      <h2>The whole contract, <em class="grad">on one sheet.</em></h2>
+      <h2>Technical details, <em class="grad">at a glance.</em></h2>
+      <p class="sec-sub">Check deployment options, supported media formats and storage requirements before setting up Foldergram on your own hardware.</p>
     </header>
     <div class="sheet framed rv">
       <b class="mk mk-tl"></b><b class="mk mk-tr"></b><b class="mk mk-bl"></b><b class="mk mk-br"></b>
       <div class="sheet-head">
-        <span class="mono">MODEL FG-01 · REV C</span>
+        <span class="mono">FOLDERGRAM · TECHNICAL SPECIFICATIONS</span>
         <svg width="120" height="24" viewBox="0 0 120 24" aria-hidden="true"><rect x="0" width="3" height="24"/><rect x="6" width="2" height="24"/><rect x="10" width="5" height="24"/><rect x="18" width="2" height="24"/><rect x="22" width="3" height="24"/><rect x="27" width="6" height="24"/><rect x="36" width="2" height="24"/><rect x="40" width="3" height="24"/><rect x="46" width="5" height="24"/><rect x="53" width="2" height="24"/><rect x="57" width="4" height="24"/><rect x="63" width="2" height="24"/><rect x="67" width="3" height="24"/><rect x="72" width="6" height="24"/><rect x="80" width="2" height="24"/><rect x="84" width="3" height="24"/><rect x="90" width="5" height="24"/><rect x="97" width="2" height="24"/><rect x="101" width="3" height="24"/><rect x="107" width="6" height="24"/><rect x="116" width="4" height="24"/></svg>
       </div>
       <dl>
-        <div class="srow2"><dt>License</dt><dd><b>AGPL-3.0</b> (open-source copyleft)</dd></div>
-        <div class="srow2"><dt>Delivery</dt><dd>GHCR Docker image / Compose or Node.js 22 source install</dd></div>
-        <div class="srow2"><dt>Storage</dt><dd>Originals in place; generated derivatives stored separately</dd></div>
-        <div class="srow2"><dt>Database</dt><dd>Local SQLite for indexes, settings and saved state</dd></div>
-        <div class="srow2"><dt>Feed</dt><dd>Recent · Rediscover · Random</dd></div>
-        <div class="srow2"><dt>Stories</dt><dd>Reserved stories/ folders; date-based Moments / Highlights</dd></div>
-        <div class="srow2"><dt>Reels</dt><dd>MP4 · MOV · M4V · WebM · MKV; full-height video feed</dd></div>
-        <div class="srow2"><dt>Places</dt><dd>Optional offline GeoNames matching for GPS-tagged photos</dd></div>
-        <div class="srow2"><dt>Likes &amp; Saved</dt><dd>SQLite for signed-in users; browser-local in public mode</dd></div>
-        <div class="srow2"><dt>Access</dt><dd>Admin / shared viewer password / public browse; folder shares</dd></div>
-        <div class="srow2"><dt>Cloud services</dt><dd>Not required; optional read-only Immich connection</dd></div>
+        <div class="srow2"><dt>License</dt><dd><b>AGPL-3.0</b> · Free and open source</dd></div>
+        <div class="srow2"><dt>Installation</dt><dd>Docker Compose (recommended) or Node.js 22 source installation</dd></div>
+        <div class="srow2"><dt>Container images</dt><dd><a href="https://github.com/foldergram/foldergram/pkgs/container/foldergram" target="_blank" rel="noopener">GitHub Container Registry</a> · <a href="https://hub.docker.com/r/sajjadalis/foldergram" target="_blank" rel="noopener">Docker Hub</a></dd></div>
+        <div class="srow2"><dt>Docker architectures</dt><dd>Linux AMD64 (x86-64) · Linux ARM64</dd></div>
+        <div class="srow2"><dt>Default port</dt><dd><code>4141</code> · Configurable host port</dd></div>
+        <div class="srow2"><dt>Media sources</dt><dd>Local folders, mounted NAS and external drives; optional read-only Immich integration</dd></div>
+        <div class="srow2"><dt>Storage</dt><dd>Local originals stay in place; thumbnails, previews and streaming cache stored separately</dd></div>
+        <div class="srow2"><dt>Database</dt><dd>Built-in SQLite · No separate database server required</dd></div>
+        <div class="srow2"><dt>Image formats</dt><dd>JPEG · PNG · WebP · GIF · AVIF<br><small>Experimental opt-in support for local still HEIC / HEIF</small></dd></div>
+        <div class="srow2"><dt>Video formats</dt><dd>MP4 · MOV · M4V · WebM · MKV</dd></div>
+        <div class="srow2"><dt>Video playback</dt><dd>Direct playback or on-demand streaming for new local videos by default; optional MP4 previews</dd></div>
+        <div class="srow2"><dt>Media processing</dt><dd>FFmpeg and FFprobe included in the Docker image</dd></div>
+        <div class="srow2"><dt>Access</dt><dd>Optional admin and viewer passwords, public browsing and scoped folder shares</dd></div>
+        <div class="srow2"><dt>Cloud services</dt><dd>None required for local galleries</dd></div>
+        <div class="srow2"><dt>Languages</dt><dd>English · German · Spanish · Chinese</dd></div>
       </dl>
     </div>
+    <a class="feats-more" href="https://docs.foldergram.app/installation" target="_blank" rel="noopener">
+      View installation and runtime requirements
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
+    </a>
   </div>
 </section>
