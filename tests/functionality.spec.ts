@@ -5,6 +5,8 @@ const url = 'http://127.0.0.1:4333/';
 test.beforeEach(async ({page}) => {
   await page.route(/^https?:\/\/(?!127\.0\.0\.1)/, route => route.abort());
   await page.goto(url, {waitUntil:'domcontentloaded'});
+  await page.locator('#app').scrollIntoViewIfNeeded();
+  await expect(page.locator('html')).toHaveClass(/preview-ready/);
 });
 
 test('feed sorting, likes and saved collections', async ({page}) => {

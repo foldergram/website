@@ -1,3 +1,9 @@
+---
+import { Image } from 'astro:assets';
+import tiger from '../../public/demo-media/st-tigers-0.webp';
+import lion from '../../public/demo-media/st-lions-0.webp';
+import season from '../../public/demo-media/st-season-0.webp';
+---
 <!-- ================= HOW IT WORKS ================= -->
 <section class="sec" id="how">
   <div class="wrap">
@@ -50,9 +56,9 @@
         </div>
         <div class="s-vig">
           <div class="vig-rings">
-            <span class="ap-story"><span class="ring"><img src="demo-media/st-tigers-0.webp" alt="" loading="lazy"></span><span class="ap-sname">Recent Batches</span></span>
-            <span class="ap-story"><span class="ring"><img src="demo-media/st-lions-0.webp" alt="" loading="lazy"></span><span class="ap-sname">Deep Cuts</span></span>
-            <span class="ap-story"><span class="ring"><img src="demo-media/st-season-0.webp" alt="" loading="lazy"></span><span class="ap-sname">Lucky Dip</span></span>
+            <span class="ap-story"><span class="ring"><Image src={tiger} width={160} height={160} fit="cover" format="webp" quality={85} alt="" loading="lazy" decoding="async" /></span><span class="ap-sname">Recent Batches</span></span>
+            <span class="ap-story"><span class="ring"><Image src={lion} width={160} height={160} fit="cover" format="webp" quality={85} alt="" loading="lazy" decoding="async" /></span><span class="ap-sname">Deep Cuts</span></span>
+            <span class="ap-story"><span class="ring"><Image src={season} width={160} height={160} fit="cover" format="webp" quality={85} alt="" loading="lazy" decoding="async" /></span><span class="ap-sname">Lucky Dip</span></span>
           </div>
           <div class="vig-reelchip">
             <span class="vbadge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5Z"/></svg>0:12</span>

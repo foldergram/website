@@ -18,7 +18,8 @@ export default defineConfig({
       timeout: 15000,
     },
     {
-      command: 'pnpm preview --port 4333',
+      // Serve the static production output independently of any local Astro preview.
+      command: 'python3 -m http.server 4333 --bind 127.0.0.1 --directory dist',
       url: 'http://127.0.0.1:4333/',
       reuseExistingServer: !process.env.CI,
       timeout: 15000,

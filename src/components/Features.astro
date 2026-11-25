@@ -85,7 +85,7 @@ const features = [
     <div class="feats" id="feats">
       {features.map((feature, index) => (
         <div class:list={['feat', { open: index === 0 }]}>
-          <button class="feat-head" id={`fh${index + 1}`} aria-expanded={index === 0 ? 'true' : 'false'} aria-controls={`fb${index + 1}`}>
+          <button class="feat-head" id={`fh${index + 1}`} aria-expanded="true" aria-controls={`fb${index + 1}`}>
             <span class="f-no">{String(index + 1).padStart(2, '0')}</span>
             <span class="f-copy">
               <span class="f-title">{feature.title}</span>
@@ -94,7 +94,7 @@ const features = [
             <span class="f-tag">{feature.tag}</span>
             <span class="f-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span>
           </button>
-          <div class="feat-body" id={`fb${index + 1}`} role="region" aria-labelledby={`fh${index + 1}`} aria-hidden={index === 0 ? 'false' : 'true'}>
+          <div class="feat-body" id={`fb${index + 1}`} role="region" aria-labelledby={`fh${index + 1}`} aria-hidden="false">
             <div class="fb-in"><div><p>{feature.detail}</p></div></div>
           </div>
         </div>

@@ -14,6 +14,9 @@ const viewports = [[1440,900],[900,1200],[390,844]] as const;
 // How it works now describes installation and media sources rather than the original mock.
 const regions = ['#app'] as const;
 const normalizeCss = `
+/* Compare both implementations with identical fonts, independently of the
+   intentional switch from external Google Fonts to local variable fonts. */
+:root{--f-ui:Arial,sans-serif!important;--f-mono:monospace!important}
 *,*::before,*::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 /* Prevent sticky-header overlays from differing when preceding section heights change. */
 .nav { position: static !important; }
@@ -35,10 +38,22 @@ for (const [width,height] of viewports) {
         await page.reload({waitUntil:'domcontentloaded'});
         if (theme === 'light') await page.locator('#themeBtn').click();
         await page.addStyleTag({content:normalizeCss});
+        await page.locator('#app').scrollIntoViewIfNeeded();
+        await expect(page.locator('#apMain')).not.toBeEmpty();
         await page.evaluate(async () => {
           const images = Array.from(document.querySelectorAll('img'));
           images.forEach(img => img.loading = 'eager');
           await Promise.all(images.map(img => img.decode().catch(() => null)));
+        });
+        // Isolate the unchanged app at an integer pixel origin. The new
+        // landing sections intentionally shift its document position.
+        await page.locator('#app').evaluate(el => {
+          const box=el.getBoundingClientRect();
+          Object.assign((el as HTMLElement).style, {
+            position:'fixed',top:'0px',left:'0px',margin:'0',
+            width:Math.round(box.width)+'px',height:Math.round(box.height)+'px',
+            zIndex:'1000',
+          });
         });
         await page.waitForTimeout(150);
         const captures: Record<string,string> = {};

@@ -86,6 +86,7 @@ test('interactive preview explains the sample gallery and offers the full demo a
       };
     });
     expect(layout, `width ${width}`).toEqual({buttonFits:true,headerBeforeApp:true,overflow:false});
+    await section.locator('#app').scrollIntoViewIfNeeded();
     await expect(section.locator('#apMain')).not.toBeEmpty();
   }
 });
@@ -286,5 +287,5 @@ test('production output serves external compiled CSS rather than Vite dev style 
   await expect(page.locator('style[data-vite-dev-id]')).toHaveCount(0);
   const sheets = await page.locator('link[rel="stylesheet"]').evaluateAll(nodes => nodes.map(link => (link as HTMLLinkElement).href));
   expect(sheets.some(url => url.includes('/_astro/') && url.endsWith('.css'))).toBeTruthy();
-  await expect(page).toHaveTitle('Foldergram - The feed you know. The photos you own.');
+  await expect(page).toHaveTitle('Foldergram - Self-Hosted Photo & Video Gallery');
 });

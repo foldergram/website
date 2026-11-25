@@ -47,8 +47,22 @@ const questions = [
     answer: 'Foldergram works in desktop and mobile web browsers and can be installed as a web app on supported devices. Open your own Foldergram server in your browser to access your library.',
   },
 ];
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  '@id': new URL('/#faq', Astro.site).href,
+  mainEntity: questions.map(({ question, answer, link }) => ({
+    '@type': 'Question',
+    name: question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: link ? answer + ' ' + link.label + ': ' + link.href : answer,
+    },
+  })),
+};
 ---
 <!-- ================= FAQ ================= -->
+<script is:inline type="application/ld+json" set:html={JSON.stringify(faqSchema).replace(/</g, '\\u003c')} />
 <section class="sec" id="faq" aria-labelledby="faq-heading">
   <div class="wrap">
     <header class="sec-head">

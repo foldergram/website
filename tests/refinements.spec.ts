@@ -154,6 +154,7 @@ test('the shorter quote is balanced and does not leave a one-word last line', as
 test('sidebar folder labels and inline open-source credit', async ({page}) => {
   await page.setViewportSize({width:1440,height:900});
   await page.goto(site, {waitUntil:'domcontentloaded'});
+  await page.locator('#app').scrollIntoViewIfNeeded();
   const labels = page.locator('.ap-rail .ss');
   await expect(labels).toHaveCount(6);
   await expect(labels.first()).toHaveText('Top-level source folder');

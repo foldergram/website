@@ -113,8 +113,7 @@ function setTheme(t){
   thIcon.innerHTML=t==='dark'?MOON:SUN;
   try{localStorage.setItem('fg-theme',t)}catch(e){}
 }
-let stored='dark';try{stored=localStorage.getItem('fg-theme')||'dark'}catch(e){}
-setTheme(stored);
+setTheme(document.documentElement.dataset.theme==='light'?'light':'dark');
 themeBtn.addEventListener('click',()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark'));
 
 /* ============================================================
@@ -639,10 +638,21 @@ document.addEventListener('keydown',e=>{
 /* ============================================================
    site-wide: reveals, terminals, stars, menu
 ============================================================ */
-const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){en.target.classList.add('on');io.unobserve(en.target)}}),{threshold:.12,rootMargin:'0px 0px -6% 0px'});
-$$('.rv').forEach(el=>io.observe(el));
-const tio=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){en.target.classList.add('ok');tio.unobserve(en.target)}}),{threshold:.3});
-$$('.term').forEach(el=>tio.observe(el));
+function setupReveals(){
+  if(reduceMotion || !('IntersectionObserver' in window))return;
+  const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){en.target.classList.add('on');io.unobserve(en.target)}}),{threshold:.12});
+  const tio=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){en.target.classList.add('ok');tio.unobserve(en.target)}}),{threshold:.3});
+  // Batch all layout reads before modifying classes to avoid forced reflows.
+  const belowViewport=$$('.rv').filter(el=>el.getBoundingClientRect().top>=innerHeight);
+  belowViewport.forEach(el=>{el.classList.add('pending');io.observe(el);if(el.classList.contains('term'))tio.observe(el)});
+  document.documentElement.classList.add('reveal-ready');
+}
+$$('.feat').forEach(item=>{
+  const open=item.classList.contains('open');
+  $('.feat-head',item).setAttribute('aria-expanded',String(open));
+  $('.feat-body',item).setAttribute('aria-hidden',String(!open));
+});
+document.documentElement.classList.add('features-ready');
 $$('.feat-head').forEach(btn=>btn.addEventListener('click',()=>{
   const item=btn.closest('.feat'),wasOpen=item.classList.contains('open');
   $$('.feat.open').forEach(f=>{f.classList.remove('open');$('.feat-head',f).setAttribute('aria-expanded','false');$('.feat-body',f).setAttribute('aria-hidden','true')});
@@ -686,9 +696,13 @@ function showToast(msg){
   }catch(e){}
 })();
 const mbtn=$('#mbtn'),mnav=$('#mnav');
-mbtn.addEventListener('click',()=>{const o=mnav.classList.toggle('open');mbtn.setAttribute('aria-expanded',o)});
-mnav.addEventListener('click',e=>{if(e.target.closest('a')){mnav.classList.remove('open');mbtn.setAttribute('aria-expanded','false')}});
-$$('.js-demo').forEach(a=>a.addEventListener('click',()=>{setTimeout(()=>{app.classList.remove('flash');void app.offsetWidth;app.classList.add('flash')},550)}));
+function setMenu(open){mnav.classList.toggle('open',open);mbtn.setAttribute('aria-expanded',String(open));mbtn.setAttribute('aria-label',open?'Close menu':'Open menu')}
+mbtn.addEventListener('click',()=>setMenu(!mnav.classList.contains('open')));
+mnav.addEventListener('click',e=>{if(e.target.closest('a'))setMenu(false)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&mnav.classList.contains('open')){setMenu(false);mbtn.focus()}});
+document.addEventListener('click',e=>{if(mnav.classList.contains('open')&&!mnav.contains(e.target)&&!mbtn.contains(e.target))setMenu(false)});
+$$('a[href="#demo"]').forEach(a=>a.addEventListener('click',initializePreview));
+$$('.js-demo').forEach(a=>a.addEventListener('click',()=>{if(!reduceMotion)setTimeout(()=>{app.classList.remove('flash');requestAnimationFrame(()=>requestAnimationFrame(()=>app.classList.add('flash')))},550)}));
 
 /* Match Foldergram's SidebarNav icons: same regular/filled variants and active semantics. */
 const previewNavIcons={"home":["<path d=\"M2 11.2a2.5 2.5 0 0 1 .8-1.83l7.5-6.97a2.5 2.5 0 0 1 3.4 0l7.5 6.97a2.5 2.5 0 0 1 .8 1.83V19a3 3 0 0 1-3 3h-4v-5a3 3 0 0 0-6 0v5H5a3 3 0 0 1-3-3z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linejoin=\"round\"/>","<path d=\"M2 11.2a2.5 2.5 0 0 1 .8-1.83l7.5-6.97a2.5 2.5 0 0 1 3.4 0l7.5 6.97a2.5 2.5 0 0 1 .8 1.83V19a3 3 0 0 1-3 3h-4v-5a3 3 0 0 0-6 0v5H5a3 3 0 0 1-3-3z\" fill=\"currentColor\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linejoin=\"round\"/>"],"reels":["<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"2\" y=\"2\" width=\"20\" height=\"20\" rx=\"5\"/><path d=\"M9.5 8.25 16.5 12l-7 3.75z\" stroke-linejoin=\"round\"/></g>","<path d=\"M7 1h10a6 6 0 0 1 6 6v10a6 6 0 0 1-6 6H7a6 6 0 0 1-6-6V7a6 6 0 0 1 6-6ZM10 7.5a1 1 0 0 0-1 1v7a1 1 0 0 0 1.5.87l6-3.5a1 1 0 0 0 0-1.74l-6-3.5A1 1 0 0 0 10 7.5Z\" fill=\"currentColor\" fill-rule=\"evenodd\"/>"],"search":["<path fill=\"currentColor\" d=\"M16.102 17.162a8 8 0 1 1 1.06-1.06l4.618 4.618a.75.75 0 1 1-1.06 1.06zM17.5 11a6.5 6.5 0 1 0-13 0a6.5 6.5 0 0 0 13 0\"/>","<path fill=\"currentColor\" d=\"M15.843 17.368a8 8 0 1 1 1.428-1.4l4.427 4.316a1 1 0 1 1-1.396 1.432zM17 11a6 6 0 1 0-12 0a6 6 0 0 0 12 0\"/>"],"library":["<path fill=\"currentColor\" d=\"M3.5 6.25V8h4.629a.75.75 0 0 0 .53-.22l1.53-1.53l-1.53-1.53a.75.75 0 0 0-.53-.22H5.25A1.75 1.75 0 0 0 3.5 6.25m-1.5 0A3.25 3.25 0 0 1 5.25 3h2.879a2.25 2.25 0 0 1 1.59.659L11.562 5.5h7.189A3.25 3.25 0 0 1 22 8.75v9A3.25 3.25 0 0 1 18.75 21H5.25A3.25 3.25 0 0 1 2 17.75zM3.5 9.5v8.25c0 .966.784 1.75 1.75 1.75h13.5a1.75 1.75 0 0 0 1.75-1.75v-9A1.75 1.75 0 0 0 18.75 7h-7.19L9.72 8.841a2.25 2.25 0 0 1-1.591.659z\"/>","<path fill=\"currentColor\" d=\"M2 8V6.25A3.25 3.25 0 0 1 5.25 3h2.879a2.25 2.25 0 0 1 1.59.659l1.531 1.53L8.659 7.78a.75.75 0 0 1-.53.22zm0 1.5v8.25A3.25 3.25 0 0 0 5.25 21h13.5A3.25 3.25 0 0 0 22 17.75v-9a3.25 3.25 0 0 0-3.25-3.25h-5.69L9.72 8.841a2.25 2.25 0 0 1-1.591.659z\"/>"],"places":["<path fill=\"currentColor\" d=\"M5.843 4.568a8.708 8.708 0 0 1 12.315 12.314l-1.188 1.174q-1.312 1.288-3.406 3.313a2.25 2.25 0 0 1-3.128-.001l-3.491-3.396q-.658-.646-1.102-1.09a8.71 8.71 0 0 1 0-12.314M17.096 5.63A7.207 7.207 0 1 0 6.904 15.822l1.487 1.467a748 748 0 0 0 3.088 3a.75.75 0 0 0 1.043 0l3.394-3.3q.705-.69 1.18-1.167a7.207 7.207 0 0 0 0-10.192M12.001 7.5a3.5 3.5 0 1 1-.002 7.001a3.5 3.5 0 0 1 .002-7.001M12 9a2 2 0 1 0 0 4a2 2 0 0 0 0-4\"/>","<path fill=\"currentColor\" d=\"M5.843 4.57c3.4-3.401 8.913-3.401 12.314 0s3.4 8.912 0 12.313l-1.187 1.173a657 657 0 0 1-3.406 3.313a2.25 2.25 0 0 1-3.128 0l-3.491-3.397q-.658-.646-1.102-1.09a8.707 8.707 0 0 1 0-12.313M12 8a3 3 0 1 0 0 6a3 3 0 0 0 0-6\"/>"],"likes":["<path fill=\"currentColor\" d=\"m12.82 5.58l-.82.822l-.824-.824a5.375 5.375 0 1 0-7.601 7.602l7.895 7.895a.75.75 0 0 0 1.06 0l7.902-7.897a5.376 5.376 0 0 0-.001-7.599a5.38 5.38 0 0 0-7.611 0m6.548 6.54L12 19.485L4.635 12.12a3.875 3.875 0 1 1 5.48-5.48l1.358 1.357a.75.75 0 0 0 1.073-.012L13.88 6.64a3.88 3.88 0 0 1 5.487 5.48\"/>","<path fill=\"currentColor\" d=\"m12.82 5.58l-.82.822l-.824-.824a5.375 5.375 0 1 0-7.601 7.602l7.895 7.895a.75.75 0 0 0 1.06 0l7.902-7.897a5.376 5.376 0 0 0-.001-7.599a5.38 5.38 0 0 0-7.611 0\"/>"],"saved":["<path fill=\"currentColor\" d=\"M6.19 21.855a.75.75 0 0 1-1.187-.61V6.25A3.25 3.25 0 0 1 8.253 3h7.498a3.25 3.25 0 0 1 3.25 3.25v14.996a.75.75 0 0 1-1.188.609l-5.81-4.181zM17.502 6.25a1.75 1.75 0 0 0-1.75-1.75H8.253a1.75 1.75 0 0 0-1.75 1.75v13.532l5.061-3.641a.75.75 0 0 1 .876 0l5.061 3.641z\"/>","<path fill=\"currentColor\" d=\"M6.19 21.855a.75.75 0 0 1-1.187-.61V6.25A3.25 3.25 0 0 1 8.253 3h7.498a3.25 3.25 0 0 1 3.25 3.25v14.996a.75.75 0 0 1-1.188.609l-5.81-4.181z\"/>"]};
@@ -698,5 +712,24 @@ $$('.ap-ib[data-nav]').forEach(button=>{
   button.innerHTML=variants.map((body,index)=>`<svg class="${index?'active-icon':'regular-icon'}" viewBox="0 0 24 24" aria-hidden="true">${body}</svg>`).join('');
 });
 
-/* init */
-navTo('home');
+/* Initialize the gallery only when its reserved frame approaches the viewport.
+   A direct preview link starts it immediately, without changing page geometry. */
+let previewObserver=null;
+function initializePreview(){
+  if(document.documentElement.classList.contains('preview-ready'))return;
+  previewObserver?.disconnect();
+  navTo('home');
+  app.inert=false;
+  document.documentElement.classList.add('preview-ready');
+}
+document.documentElement.classList.add('site-ready');
+setupReveals();
+if(location.hash==='#demo'||!('IntersectionObserver' in window)){
+  initializePreview();
+}else{
+  previewObserver=new IntersectionObserver(entries=>{
+    if(entries.some(entry=>entry.isIntersecting))initializePreview();
+  },{rootMargin:'120px 0px'});
+  previewObserver.observe(app);
+}
+window.addEventListener('hashchange',()=>{if(location.hash==='#demo')initializePreview()});

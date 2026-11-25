@@ -18,6 +18,10 @@ for (const [width, height] of sizes) {
         await page.evaluate(() => localStorage.removeItem('fg-theme'));
         await page.reload({ waitUntil: 'domcontentloaded' });
         if (theme === 'light') await page.locator('#themeBtn').click();
+        // The source mock relied on remote Google Fonts, which are blocked here.
+        // Compare both layouts with the same fallback fonts; local fonts have a
+        // separate production regression test.
+        await page.addStyleTag({content:":root{--f-ui:Arial,sans-serif!important;--f-mono:monospace!important}"});
         await page.waitForTimeout(900);
         const metrics = await page.evaluate(() => {
           const sels = ['.nav', '.hero h1', '.hero .sub', '#app', '#how', '#features', '#why', '#oss', 'footer'];
@@ -37,8 +41,8 @@ for (const [width, height] of sizes) {
       // Hero copy, How it works, and philosophy quote intentionally changed. Their
       // vertical positions must not make unrelated sections fail parity checks.
       // Keep size and horizontal placement checks for all other regions.
-      const comparable = (boxes) => boxes.map((b,i) => b && ([1,2,4,5,6,8].includes(i) ? [b[0],b[2]] : [b[0],b[2],b[3]]));
-      // Footer content intentionally differs from the original: measure its
+      const comparable = (boxes) => boxes.map((b,i) => b && (i===1 ? 'hero headline tested separately' : [2,4,5,6,7,8].includes(i) ? [b[0],b[2]] : [b[0],b[2],b[3]]));
+      // Open source and footer content intentionally differ from the original: measure their
       // placement without asserting an outdated fixed height.
       expect(boxes[1].boxes[8]).not.toBeNull();
       expect(comparable(boxes[1].boxes)).toEqual(comparable(boxes[0].boxes));
@@ -52,6 +56,7 @@ test('interactive preview, theme, menu and viewer', async ({ page }) => {
   await page.goto(target);
   const errors: string[] = [];
   page.on('pageerror', e => errors.push(e.message));
+  await page.locator('#app').scrollIntoViewIfNeeded();
   await expect(page.locator('#apMain')).not.toBeEmpty();
   for (const nav of ['search','library','places','likes','saved','reels','home']) {
     await page.locator(`[data-nav="${nav}"]`).click();
