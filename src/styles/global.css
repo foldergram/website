@@ -105,7 +105,7 @@ h1,h2,h3{font-weight:800;letter-spacing:-.03em;line-height:1.05}
 
 .eyebrow{position:relative;font:600 12px var(--f-mono);letter-spacing:.22em;text-transform:uppercase;color:var(--mut)}
 .eyebrow b{color:var(--acc);font-weight:600}
-.hero h1{position:relative;font-size:clamp(2.4rem,7.1vw,5.6rem);margin:26px auto 22px;max-width:min(920px,10.3em);width:100%;text-wrap:balance}
+.hero h1{position:relative;font-size:clamp(2.4rem,min(7.1vw,10svh),5.6rem);margin:26px auto 22px;max-width:min(920px,10.3em);width:100%;text-wrap:balance}
 .hero h1 em{font-style:normal;display:inline}
 .hero .sub{position:relative;max-width:660px;margin:0 auto;color:var(--mut);font-size:18px}
 .hero .sub strong{color:var(--text);font-weight:600}
@@ -656,6 +656,12 @@ footer{border-top:2px solid var(--line2);overflow:hidden}
 @media (max-width:1080px){.nav-links{display:none}.nav-cta{margin-left:auto}.mbtn{display:flex}}
 @media (max-width:860px){.terms{grid-template-columns:1fr}.ap-bigstats{margin-left:0}}
 @media (max-width:740px){.nav-cta .gh-btn{display:none}}
+/* Fit the full hero in shorter laptop viewports, including browser chrome. */
+@media (min-width:561px) and (max-height:850px){
+  .hero{padding-top:clamp(24px,5svh,48px);padding-bottom:clamp(64px,9svh,80px)}
+  .hero h1{margin:20px auto 18px}
+  .hero .cta-row{margin:24px 0 20px}
+}
 @media (max-width:560px){
   .nav-in{padding:0 14px;min-height:60px;gap:8px}
   .nav-cta{gap:8px}

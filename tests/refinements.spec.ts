@@ -81,9 +81,36 @@ test('hero fills the first viewport and leaves breathing room for the fading glo
   }
 });
 
+test('hero scales with short laptop viewports and keeps every action above the fold', async ({page}) => {
+  for (const [width,height] of [[1366,768],[1366,680],[1366,640],[1280,640],[1280,720],[1024,600],[1920,1080],[1440,900]]) {
+    await page.setViewportSize({width,height});
+    await page.goto(site,{waitUntil:'domcontentloaded'});
+    await page.evaluate(()=>document.fonts.ready);
+    const geometry=await page.evaluate(()=>{
+      const hero=document.querySelector('.hero')!;
+      const title=hero.querySelector('h1')!;
+      const actions=Array.from(hero.querySelectorAll('.cta-row a,#ctaDemo')).map(el=>el.getBoundingClientRect());
+      return {
+        fontSize:parseFloat(getComputedStyle(title).fontSize),
+        heroBottom:hero.getBoundingClientRect().bottom,
+        actionsBottom:Math.max(...actions.map(rect=>rect.bottom)),
+        actionsTop:Math.min(...actions.map(rect=>rect.top)),
+        navBottom:document.querySelector('.nav')!.getBoundingClientRect().bottom,
+        overflow:document.documentElement.scrollWidth>innerWidth,
+      };
+    });
+    const label=`${width}x${height}`;
+    expect(geometry.actionsBottom,label).toBeLessThanOrEqual(height-12);
+    expect(geometry.actionsTop,label).toBeGreaterThan(geometry.navBottom);
+    expect(geometry.heroBottom,label).toBeLessThanOrEqual(height+1);
+    expect(geometry.overflow,label).toBe(false);
+    expect(geometry.fontSize,label).toBeCloseTo(Math.min(5.6*16,width*.071,height*.1),1);
+  }
+});
+
 test('navigation prioritizes installation and keeps live demo reachable on mobile', async ({page}) => {
   await page.route(github, route => route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({stargazers_count:624})}));
-  for (const width of [1440,1100,1081,1080,900,741,740,560,390,380,320]) {
+  for (const width of [1440,1366,1280,1100,1081,1080,900,741,740,560,390,380,320]) {
     await page.setViewportSize({width,height:900});
     await page.goto(site,{waitUntil:'domcontentloaded'});
     const nav = page.locator('.nav');
@@ -92,11 +119,24 @@ test('navigation prioritizes installation and keeps live demo reachable on mobil
     await expect(start).toHaveAttribute('href','https://docs.foldergram.app/installation');
     if (width > 1080) {
       await expect(nav.locator('.nav-links').getByRole('link',{name:'Live Demo'})).toBeVisible();
+      const discord=nav.locator('.nav-links').getByRole('link',{name:'Discord',exact:true});
+      await expect(discord).toBeVisible();
+      await expect(discord).toHaveAttribute('href','https://discord.gg/XPMu6b2NjB');
+      const positions=await nav.evaluate(el=>{
+        const menu=el.querySelector('.nav-links')!;
+        const last=menu.lastElementChild!.getBoundingClientRect();
+        const controls=el.querySelector('.nav-cta')!.getBoundingClientRect();
+        return {lastRight:last.right, controlsLeft:controls.left};
+      });
+      expect(positions.lastRight,`width ${width}`).toBeLessThanOrEqual(positions.controlsLeft);
       await expect(start).toBeVisible();
     } else {
       await nav.locator('#mbtn').click();
       await expect(nav.locator('#mnav').getByRole('link',{name:'Live Demo'})).toHaveAttribute('href','https://demo.foldergram.app/');
       await expect(nav.locator('#mnav').getByRole('link',{name:'Get Started'})).toBeVisible();
+      const discord=nav.locator('#mnav').getByRole('link',{name:'Join Discord'});
+      await expect(discord).toBeVisible();
+      await expect(discord).toHaveAttribute('href','https://discord.gg/XPMu6b2NjB');
     }
     const overflow = await nav.locator('.nav-in').evaluate(el => el.scrollWidth > el.clientWidth);
     expect(overflow, `width ${width}`).toBe(false);

@@ -24,6 +24,9 @@ test('every website link has a valid destination and intended external host', as
   expect(external.filter(link => link.target !== '_blank')).toEqual([]);
   expect(external.some(link => link.href === 'https://docs.foldergram.app/')).toBeTruthy();
   expect(external.some(link => link.href === 'https://demo.foldergram.app/')).toBeTruthy();
+  expect(external.filter(link => link.href === 'https://discord.gg/XPMu6b2NjB')).toHaveLength(4);
+  expect(external.filter(link => link.href === 'https://www.patreon.com/sajjadalis')).toHaveLength(3);
+  await expect(page.locator('.hero a[href*="patreon.com"],header a[href*="patreon.com"]')).toHaveCount(0);
 });
 
 test('hero preview link navigates to the interactive preview', async ({ page }) => {
@@ -207,8 +210,13 @@ test('open source section links to project resources and fits desktop and mobile
     await page.goto(site, { waitUntil: 'domcontentloaded' });
     const section = page.locator('#oss');
     await expect(section.getByRole('link', { name: 'Star on GitHub' })).toHaveAttribute('href','https://github.com/foldergram/foldergram');
-    await expect(section.locator('.cta-row').getByRole('link', { name: 'Contribute' })).toHaveAttribute('href','https://github.com/foldergram/foldergram/blob/main/CONTRIBUTING.md');
-    await expect(section.locator('.lrow2')).toHaveCount(7);
+    await expect(section.locator('.cta-row').getByRole('link', { name: 'Support on Patreon' })).toHaveAttribute('href','https://www.patreon.com/sajjadalis');
+    await expect(section.locator('.lrow2').filter({hasText:'Contribution guidelines'})).toHaveAttribute('href','https://github.com/foldergram/foldergram/blob/main/CONTRIBUTING.md');
+    await expect(section.locator('.lrow2')).toHaveCount(9);
+    await expect(section.locator('.lrow2').filter({hasText:'Support development on Patreon'})).toHaveAttribute('href','https://www.patreon.com/sajjadalis');
+    await expect(section).toContainText('Your support helps keep the project actively maintained and moving forward.');
+    expect(await section.locator('.cta-row,.cta-row a').evaluateAll(items=>items.filter(el=>el.scrollWidth>el.clientWidth+1).map(el=>el.textContent)), `CTA width ${width}`).toEqual([]);
+    await expect(section.locator('.lrow2').filter({hasText:'Community chat and support'})).toHaveAttribute('href','https://discord.gg/XPMu6b2NjB');
     await expect(section.locator('.lrow2').filter({hasText:'Updates and release notes'})).toHaveAttribute('href','https://github.com/foldergram/foldergram/releases');
     expect(await section.locator('.ls-head,.lrow2,.lrow2 .ur').evaluateAll(rows => rows.filter(row => row.scrollWidth > row.clientWidth + 1).map(row=>row.textContent)), `width ${width}`).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
@@ -253,7 +261,9 @@ test('footer groups product, resource and community links across viewport widths
     const footer = page.locator('footer');
     const nav = footer.getByRole('navigation', { name:'Footer' });
     await expect(nav.locator('h2')).toHaveText(['Product','Resources','Community']);
-    await expect(nav.getByRole('link')).toHaveCount(12);
+    await expect(nav.getByRole('link')).toHaveCount(14);
+    await expect(nav.locator('.f-group').filter({has:page.getByRole('heading',{name:'Community',exact:true})}).getByRole('link',{name:'Support Development',exact:true})).toHaveAttribute('href','https://www.patreon.com/sajjadalis');
+    await expect(nav.locator('.f-group').filter({has:page.getByRole('heading',{name:'Community',exact:true})}).getByRole('link',{name:'Discord',exact:true})).toHaveAttribute('href','https://discord.gg/XPMu6b2NjB');
     await expect(nav.getByRole('link', { name:'FAQ' })).toHaveAttribute('href','#faq');
     await expect(nav.getByRole('link', { name:'Get Started' })).toHaveAttribute('href','https://docs.foldergram.app/installation');
     await expect(footer.locator('.f-sponsor')).toHaveAttribute('rel',/sponsored/);
